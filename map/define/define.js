@@ -104,7 +104,7 @@ steal('can/util', 'can/observe', function (can) {
 				return false;
 			},
 			self = this,
-			define = this.define && this.define[prop],
+			define = this.define && (can.extend({}, this.define["*"], this.define[prop])),
 			setter = define && define.set,
 			getter = define && define.get;
 
@@ -190,7 +190,7 @@ steal('can/util', 'can/observe', function (can) {
 	// the old type sets up bubbling
 	var oldType = proto.__type;
 	proto.__type = function (value, prop) {
-		var def = this.define && this.define[prop],
+		var def = this.define && (can.extend({}, this.define["*"], this.define[prop])),
 			type = def && def.type,
 			Type = def && def.Type,
 			newValue = value;
@@ -217,7 +217,8 @@ steal('can/util', 'can/observe', function (can) {
 
 	var oldRemove = proto._remove;
 	proto._remove = function (prop, current) {
-		var remove = this.define && this.define[prop] && this.define[prop].remove,
+		var def = this.define && (can.extend({}, this.define["*"], this.define[prop])),
+			remove = def && def.remove,
 			res;
 		if (remove) {
 			can.batch.start();
@@ -257,7 +258,8 @@ steal('can/util', 'can/observe', function (can) {
 	};
 	// If the map has a define serializer for the given attr, run it.
 	var serializeProp = function(map, attr, val) {
-		var serializer = map.define && map.define[attr] && map.define[attr].serialize;
+		var def = map.define && (can.extend({}, map.define["*"], map.define[attr])),
+			serializer = attr !== '*' && def && def.serialize;
 		if(serializer === undefined) {
 			return oldSingleSerialize.apply(this, arguments);
 		} else if(serializer !== false){
